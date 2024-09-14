@@ -1,9 +1,13 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_id'])) {
-    header("Location: index.php");  // Redirect to login if not authenticated
-    exit;
+
+// Check if the user is logged in (session is set)
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['name'])) {
+    // Redirect to login page if session variables are not set
+    header("Location: index.php");
+    exit();
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -16,49 +20,75 @@ if (!isset($_SESSION['user_id'])) {
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
             margin: 0;
-            background: #f7f7f7;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f7f7f7;
+            height: 100vh;
+        }
+        .navbar {
+            background-color: #343a40;
+            color: white;
+            width: 100%;
+            padding: 10px;
+            text-align: center;
+            position: fixed;
+            top: 0;
         }
         .dashboard-container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-            width: 400px;
-            text-align: center;
+            margin-top: 60px;
+            padding: 20px;
+            width: 100%;
+            max-width: 1200px;
         }
-        h2 {
-            margin-bottom: 20px;
+        .welcome {
+            font-size: 24px;
             color: #333;
-        }
-        p {
             margin-bottom: 20px;
-            color: #555;
         }
-        a {
+        .button {
             display: inline-block;
             padding: 10px 20px;
             background-color: #007bff;
             color: white;
+            border: none;
             border-radius: 5px;
+            cursor: pointer;
             text-decoration: none;
+            margin: 5px;
         }
-        a:hover {
+        .button:hover {
             background-color: #0056b3;
         }
     </style>
 </head>
 <body>
 
-    <div class="dashboard-container">
-        <h2>Welcome, <?= $_SESSION['name']; ?>!</h2>
-        <p>You're logged in as <?= $_SESSION['role']; ?>.</p>
-        <a href="logout.php">Logout</a>
+    <div class="navbar">
+        <h2>Room Scheduling System Dashboard</h2>
     </div>
+
+    <div class="dashboard-container">
+        <div class="welcome">
+            <!-- Check if the session variable is set before displaying it -->
+            <h1>Welcome, <?= isset($_SESSION['name']) ? $_SESSION['name'] : 'Guest' ?>!</h1>
+        </div>
+
+        <div>
+            <a href="book_room.php" class="button">Book a Room</a>
+            <a href="view_schedule.php" class="button">View Schedule</a>
+            <a href="logout.php" class="button">Logout</a>
+        </div>
+    </div>
+
+<?php if ($_SESSION['role'] === 'admin'): ?>
+    <a href="create_room.php">
+        <button>Create New Room</button>
+    </a>
+<?php endif; ?>
+
 
 </body>
 </html>

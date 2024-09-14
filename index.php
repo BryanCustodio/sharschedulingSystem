@@ -2,30 +2,43 @@
 session_start();
 require 'config.php';  // Include your database connection file
 
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // Handle login functionality
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
-    $email = $_POST['email'];
+    // Sanitize user input
+    $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
     $password = $_POST['password'];
-    
-    // Prepare and execute the query
-    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
-    $stmt->bind_param('s', $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
-    
-    // Check if user exists and password matches
-    if ($user && password_verify($password, $user['password'])) {
-        // Store user details in session
-        $_SESSION['user_id'] = $user['user_id'];
-        $_SESSION['role'] = $user['role'];
-        $_SESSION['name'] = $user['name'];  // Store the user's name
-        
-        // Redirect to dashboard
-        header("Location: dashboard.php");
-        exit;
+
+    // Check if email or password is empty
+    if (empty($email) || empty($password)) {
+        $error = "Email and password are required.";
     } else {
-        $error = "Invalid email or password!";
+        // Prepare and execute the query
+        $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+        if (!$stmt) {
+            die("Error in SQL statement: " . $conn->error);
+        }
+        $stmt->bind_param('s', $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
+
+        // Check if user exists and password matches
+        if ($user && password_verify($password, $user['password'])) {
+            // Store user details in session
+            $_SESSION['user_id'] = $user['user_id'];
+            $_SESSION['role'] = $user['role'];
+            $_SESSION['name'] = $user['name'];  // Store the user's name
+
+            // Redirect to dashboard
+            header("Location: dashboard.php");
+            exit;
+        } else {
+            $error = "Invalid email or password!";
+        }
     }
 }
 ?>
@@ -81,6 +94,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
         button:hover {
             background-color: #0056b3;
         }
+        .register-btn {
+            margin-top: 15px;
+            display: inline-block;
+            background-color: #28a745;
+            padding: 10px;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        .register-btn:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
@@ -101,6 +127,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['login'])) {
             <input type="password" name="password" placeholder="Password" required>
             <button type="submit" name="login">Login</button>
         </form>
+
+        <!-- Registration Button -->
+        <a href="register.php" class="register-btn">Register</a>
     </div>
 
 </body>
