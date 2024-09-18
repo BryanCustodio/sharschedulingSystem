@@ -86,6 +86,8 @@ $schedules_result = $stmt->get_result();
             color: #888;
             font-size: 16px;
         }
+
+        
     </style>
 </head>
 <body>
@@ -131,6 +133,8 @@ $schedules_result = $stmt->get_result();
         </tbody>
     </table>
 </div>
+
+
 
 </body>
 </html>
